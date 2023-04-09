@@ -11,6 +11,8 @@ POST /clientes
 ## Request
 A requisição deve ser feita com um JSON no corpo da mensagem, contendo o os campos necessários.
 
+Lembrando que existe uma validação onde PESSOA_FISICA só pode cadastrar CPF e RG e PESSOA_JURIDICA CNPJ e IE.
+
 Exemplo de request:
 
 ```bash
@@ -30,8 +32,6 @@ Exemplo de request:
 
 ## Response
 O servidor responde com um JSON no corpo da mensagem, contendo as informações que foram passadas para criar um cliente.
-
-Lembrando que existe uma validação onde PESSOA_FISICA só pode cadastrar CPF e RG e PESSOA_JURIDICA CNPJ e IE.
 
 Exemplo de response bem sucedido vai ser gerado um header onde poderá ser localizado atrás ve um endpoint de GET / (ID):
 
