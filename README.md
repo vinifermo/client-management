@@ -4,8 +4,7 @@
 O objetivo principal do desafio é construir uma API REST de criação de Cliente e manipulações do seu telefone.
 
 ## Especificação da API
-A API possui um endpoint para consulta do endereço e cálculo do frete, que pode ser acessado através da URL:
-
+A API possui um CRUD contando com todos os endpoints seguindo um padrão REST, confira um exemplo para criação de um cliente:
 ```bash
 POST /clientes
 ```
@@ -19,7 +18,7 @@ Exemplo de request:
   "nome": "Vinicius",
   "numeroDocumento" : "06.564.033/0001-40",
   "numeroRegistro": "524.264.777.121",
-  "tipoPessoaEnum": "PESSOA_FISICA",
+  "tipoPessoaEnum": "PESSOA_JURIDICA",
   "telefones": [
     {
       "numero": "(11)99999-9999",
