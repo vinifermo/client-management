@@ -1,11 +1,13 @@
 package com.desafio.squad.repository;
 
-import com.desafio.squad.model.Telefone;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.desafio.squad.dto.request.TelefoneRequestDTO;
+import com.desafio.squad.dto.response.TelefoneResponseDTO;
 
 import java.util.UUID;
 
-@Repository
-public interface TelefoneRepository extends JpaRepository<Telefone, UUID> {
+public interface TelefoneRepository {
+
+    TelefoneResponseDTO telefonePorId(UUID id);
+
+    void atualizar(UUID id, TelefoneRequestDTO telefoneRequestDTO);
 }

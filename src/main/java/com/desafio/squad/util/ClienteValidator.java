@@ -4,7 +4,7 @@ import com.desafio.squad.exception.ClienteDuplicadoException;
 import com.desafio.squad.exception.TelefonePrincipalInvalidoException;
 import com.desafio.squad.model.Cliente;
 import com.desafio.squad.model.Telefone;
-import com.desafio.squad.repository.ClienteRepository;
+import com.desafio.squad.repository.ClienteRepositoryJpa;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import static com.desafio.squad.exception.CustomExceptionHandler.TELEFONE_PRINCI
 @RequiredArgsConstructor
 public class ClienteValidator {
 
-    private final ClienteRepository clienteRepository;
+    private final ClienteRepositoryJpa clienteRepositoryJpa;
 
     public void validarTelefones(List<Telefone> telefones) {
         long principalCount = telefones.stream().filter(Telefone::getPrincipal).count();
@@ -27,7 +27,7 @@ public class ClienteValidator {
     }
 
     public void validarClienteDuplicado(Cliente cliente) {
-        List<Cliente> clientes = clienteRepository.findAllByNumeroDocumento(cliente.getNumeroDocumento());
+        List<Cliente> clientes = clienteRepositoryJpa.findAllByNumeroDocumento(cliente.getNumeroDocumento());
 
         if (clientes.size() > 1) {
             throw new ClienteDuplicadoException(String.format(CLIENTE_DUPLICADO));

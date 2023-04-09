@@ -7,7 +7,9 @@ import com.desafio.squad.dto.response.TelefoneResponseDTO;
 import com.desafio.squad.enums.SituacaoEnum;
 import com.desafio.squad.model.Cliente;
 import com.desafio.squad.model.Telefone;
-import com.desafio.squad.service.ClienteServiceImpl;
+import com.desafio.squad.service.ClienteService;
+import com.desafio.squad.util.FilterPageable;
+import com.desafio.squad.util.ResourceUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -16,8 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.SmartValidator;
-import com.desafio.squad.util.FilterPageable;
-import com.desafio.squad.util.ResourceUtils;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -39,7 +39,7 @@ public class ClienteControllerTest extends AbstractControllerTest {
     private static final String PAGE = URI + "/pageable";
 
     @Mock(name = "clienteService")
-    private ClienteServiceImpl clienteServiceImplMock;
+    private ClienteService clienteServiceMock;
 
     @Mock(name = "smartValidator")
     private SmartValidator smartValidator;
@@ -56,17 +56,17 @@ public class ClienteControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() {
         super.setUp();
-        this.clienteController = new ClienteController(clienteServiceImplMock,smartValidator);
+        this.clienteController = new ClienteController(clienteServiceMock, smartValidator);
         this.registerController(this.clienteController);
 
-         cliente = new Cliente(UUID.randomUUID(),"João da Silva", LocalDateTime.now(), "667.217.700-08", "25.955.736-5", SituacaoEnum.ATIVO, PESSOA_FISICA,
-                List.of(new Telefone("123",true,cliente)));
+        cliente = new Cliente(UUID.randomUUID(), "João da Silva", LocalDateTime.now(), "667.217.700-08", "25.955.736-5", SituacaoEnum.ATIVO, PESSOA_FISICA,
+                List.of(new Telefone("123", true, cliente)));
 
         clienteRequestDTO = new ClienteRequestDTO("João da Silva", LocalDateTime.now(), "667.217.700-08", "25.955.736-5", SituacaoEnum.ATIVO, PESSOA_FISICA,
-                List.of(new TelefoneRequestDTO("123",true)));
+                List.of(new TelefoneRequestDTO("123", true)));
 
-        clienteResponseDTO = new ClienteResponseDTO("João da Silva", LocalDateTime.now(),SituacaoEnum.ATIVO, PESSOA_FISICA,"667.217.700-08", "25.955.736-5",
-                List.of(new TelefoneResponseDTO(UUID.randomUUID(),"321-1234",true)));
+        clienteResponseDTO = new ClienteResponseDTO("João da Silva", LocalDateTime.now(), SituacaoEnum.ATIVO, PESSOA_FISICA, "667.217.700-08", "25.955.736-5",
+                List.of(new TelefoneResponseDTO(UUID.randomUUID(), "321-1234", true)));
 
         clienteJson = ResourceUtils.getContentFromResource("/json/criar-cliente.json");
     }
@@ -75,7 +75,7 @@ public class ClienteControllerTest extends AbstractControllerTest {
     public void deveRetornarOkQuandoBuscarClientePorId() throws Exception {
         String uri = String.format("%s/%s", URI, "9de5354e-17fc-4cf8-ab1a-17d0a15ac57e");
 
-        when(clienteServiceImplMock.clientePorId(any(UUID.class))).thenReturn(clienteResponseDTO);
+        when(clienteServiceMock.clientePorId(any(UUID.class))).thenReturn(clienteResponseDTO);
 
         mockMvc.perform(get(uri))
                 .andExpect(jsonPath("$.nome", is("João da Silva")))
@@ -87,39 +87,39 @@ public class ClienteControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.telefones[0].principal", is(true)))
                 .andExpect(status().isOk());
 
-        verify(clienteServiceImplMock, times(1)).clientePorId(any(UUID.class));
-        verifyNoMoreInteractions(clienteServiceImplMock);
+        verify(clienteServiceMock, times(1)).clientePorId(any(UUID.class));
+        verifyNoMoreInteractions(clienteServiceMock);
     }
 
     @Test
     public void deveRetornarOkQuandoPesquisarPorPagina() throws Exception {
         List<ClienteResponseDTO> clientes = Arrays.asList(
-                new ClienteResponseDTO("João da Silva", LocalDateTime.now(),SituacaoEnum.ATIVO, PESSOA_FISICA,"667.217.700-08", "25.955.736-5",
-                List.of(new TelefoneResponseDTO(UUID.randomUUID(),"123",true))));
+                new ClienteResponseDTO("João da Silva", LocalDateTime.now(), SituacaoEnum.ATIVO, PESSOA_FISICA, "667.217.700-08", "25.955.736-5",
+                        List.of(new TelefoneResponseDTO(UUID.randomUUID(), "123", true))));
 
         FilterPageable filterPageable = new FilterPageable(0, 2, "nome", "ASC");
         Pageable pageable = filterPageable.listByPage();
         Page<ClienteResponseDTO> clientePage = new PageImpl<>(clientes, pageable, 3);
 
-        when(clienteServiceImplMock.findByPage(anyString(), any(Pageable.class))).thenReturn(clientePage);
+        when(clienteServiceMock.findByPage(anyString(), any(Pageable.class))).thenReturn(clientePage);
 
         mockMvc.perform(get(PAGE)
                         .contentType(contentType)
                         .param("direction", "ASC"))
                 .andExpect(status().isOk());
 
-        verify(clienteServiceImplMock, times(1)).findByPage(anyString(), any(Pageable.class));
-        verifyNoMoreInteractions(clienteServiceImplMock);
+        verify(clienteServiceMock, times(1)).findByPage(anyString(), any(Pageable.class));
+        verifyNoMoreInteractions(clienteServiceMock);
     }
 
     @Test
     public void deveRetornarOkQuandoListarClientes() throws Exception {
-        when(clienteServiceImplMock.listar()).thenReturn(List.of(clienteResponseDTO));
+        when(clienteServiceMock.listar()).thenReturn(List.of(clienteResponseDTO));
         mockMvc.perform(get(URI))
                 .andExpect(status().isOk());
 
-        verify(clienteServiceImplMock, times(1)).listar();
-        verifyNoMoreInteractions(clienteServiceImplMock);
+        verify(clienteServiceMock, times(1)).listar();
+        verifyNoMoreInteractions(clienteServiceMock);
     }
 
     @Test
@@ -133,15 +133,15 @@ public class ClienteControllerTest extends AbstractControllerTest {
                 .replace("{{numero}}", "321-1234")
                 .replace("{{principal}}", "true");
 
-        when(clienteServiceImplMock.criar(any(ClienteRequestDTO.class))).thenReturn(cliente);
+        when(clienteServiceMock.criar(any(ClienteRequestDTO.class))).thenReturn(cliente);
 
         mockMvc.perform(post(URI)
                         .contentType(contentType)
                         .content(payload))
                 .andExpect(status().isCreated());
 
-        verify(clienteServiceImplMock, times(1)).criar(any(ClienteRequestDTO.class));
-        verifyNoMoreInteractions(clienteServiceImplMock);
+        verify(clienteServiceMock, times(1)).criar(any(ClienteRequestDTO.class));
+        verifyNoMoreInteractions(clienteServiceMock);
     }
 
     @Test
@@ -162,8 +162,8 @@ public class ClienteControllerTest extends AbstractControllerTest {
                         .content(payload))
                 .andExpect(status().isNoContent());
 
-        verify(clienteServiceImplMock, times(1)).atualizar(any(UUID.class), any(ClienteRequestDTO.class));
-        verifyNoMoreInteractions(clienteServiceImplMock);
+        verify(clienteServiceMock, times(1)).atualizar(any(UUID.class), any(ClienteRequestDTO.class));
+        verifyNoMoreInteractions(clienteServiceMock);
     }
 
     @Test
@@ -173,8 +173,8 @@ public class ClienteControllerTest extends AbstractControllerTest {
         mockMvc.perform(delete(uri))
                 .andExpect(status().isNoContent());
 
-        verify(clienteServiceImplMock, times(1)).deletePorId(any(UUID.class));
-        verifyNoMoreInteractions(clienteServiceImplMock);
+        verify(clienteServiceMock, times(1)).deletePorId(any(UUID.class));
+        verifyNoMoreInteractions(clienteServiceMock);
     }
 
     @Test
@@ -186,7 +186,7 @@ public class ClienteControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void deveRetornarNotFoundQuandoBuscarUmClienteInexistente() throws Exception {
+    public void deveRetornarBadRequestQuandoPassarUmIdInvalido() throws Exception {
         String uri = String.format("%s/%s", URI, "433c-8971-4a3913762e7e");
 
         mockMvc.perform(get(uri))

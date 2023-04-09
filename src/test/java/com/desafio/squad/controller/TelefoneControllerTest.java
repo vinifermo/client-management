@@ -5,12 +5,12 @@ import com.desafio.squad.dto.response.TelefoneResponseDTO;
 import com.desafio.squad.enums.SituacaoEnum;
 import com.desafio.squad.model.Cliente;
 import com.desafio.squad.model.Telefone;
-import com.desafio.squad.service.TelefoneServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+import com.desafio.squad.service.TelefoneService;
+import com.desafio.squad.util.ResourceUtils;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import com.desafio.squad.util.ResourceUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +30,7 @@ public class TelefoneControllerTest extends AbstractControllerTest {
     private static final String URI = "/telefones";
 
     @Mock(name = "telefoneService")
-    private TelefoneServiceImpl telefoneServiceImpl;
+    private TelefoneService telefoneServiceImpl;
 
     @InjectMocks
     private TelefoneController telefoneController;
@@ -47,18 +47,18 @@ public class TelefoneControllerTest extends AbstractControllerTest {
         this.telefoneController = new TelefoneController(telefoneServiceImpl);
         this.registerController(this.telefoneController);
 
-        cliente = new Cliente(UUID.randomUUID(),"João da Silva", LocalDateTime.now(), "667.217.700-08", "25.955.736-5", SituacaoEnum.ATIVO, PESSOA_FISICA,
-                List.of(new Telefone("123",true,cliente)));
+        cliente = new Cliente(UUID.randomUUID(), "João da Silva", LocalDateTime.now(), "667.217.700-08", "25.955.736-5", SituacaoEnum.ATIVO, PESSOA_FISICA,
+                List.of(new Telefone("123", true, cliente)));
 
-        telefone = new Telefone(UUID.fromString("9de5354e-17fc-4cf8-ab1a-17d0a15ac57e"), "321-1234",true,cliente);
-        telefoneRequestDTO = new TelefoneRequestDTO("321-1234",true);
-        telefoneResponseDTO = new TelefoneResponseDTO(UUID.fromString("9de5354e-17fc-4cf8-ab1a-17d0a15ac57e"),"321-1234",true);
+        telefone = new Telefone(UUID.fromString("9de5354e-17fc-4cf8-ab1a-17d0a15ac57e"), "321-1234", true, cliente);
+        telefoneRequestDTO = new TelefoneRequestDTO("321-1234", true);
+        telefoneResponseDTO = new TelefoneResponseDTO(UUID.fromString("9de5354e-17fc-4cf8-ab1a-17d0a15ac57e"), "321-1234", true);
 
         telefoneJson = ResourceUtils.getContentFromResource("/json/atualizar-telefone.json");
     }
 
     @Test
-    public void deveRetornar200OkQuandoBuscarTelefoneePorId() throws Exception {
+    public void deveRetornarOkQuandoBuscarTelefonePorId() throws Exception {
         String uri = String.format("%s/%s", URI, "9de5354e-17fc-4cf8-ab1a-17d0a15ac57e");
 
         when(telefoneServiceImpl.telefonePorId(any(UUID.class))).thenReturn(telefoneResponseDTO);
@@ -74,7 +74,7 @@ public class TelefoneControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void deveAtualizarComSucessoRetornando204() throws Exception {
+    public void deveRetornarNoContentQuandoAtualizarUmTelefone() throws Exception {
         String uri = String.format("%s/%s", URI, "9de5354e-17fc-4cf8-ab1a-17d0a15ac57e");
 
         String payload = telefoneJson

@@ -15,19 +15,19 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @ContextConfiguration
 public abstract class AbstractControllerTest {
 
-	protected MockMvc mockMvc;
+    protected MockMvc mockMvc;
 
-	protected MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
-			MediaType.APPLICATION_JSON.getSubtype());
+    protected MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
+            MediaType.APPLICATION_JSON.getSubtype());
 
-	@Before
-	public void setUp() {
-		MockitoAnnotations.openMocks(this);
-	}
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-	protected void registerController(Object controller) {
-		this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
-				.build();
-	}
+    protected void registerController(Object controller) {
+        this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .build();
+    }
 
 }

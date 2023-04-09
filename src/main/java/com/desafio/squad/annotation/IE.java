@@ -1,14 +1,13 @@
 package com.desafio.squad.annotation;
 
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
-import jakarta.validation.constraints.Pattern;
-
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import javax.validation.constraints.Pattern;
 import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = { })
+@Constraint(validatedBy = {})
 @Pattern(regexp = "^\\d{3}[.]\\d{3}[.]\\d{3}[.]\\d{3}$")
 @Documented
 public @interface IE {

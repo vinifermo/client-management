@@ -10,9 +10,9 @@ import com.desafio.squad.enums.SituacaoEnum;
 import com.desafio.squad.exception.TelefonePrincipalInvalidoException;
 import com.desafio.squad.model.Cliente;
 import com.desafio.squad.model.Telefone;
-import com.desafio.squad.repository.ClienteRepository;
-import com.desafio.squad.repository.TelefoneRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.desafio.squad.repository.ClienteRepositoryJpa;
+import com.desafio.squad.repository.TelefoneRepositoryJpa;
+import com.desafio.squad.util.ClienteValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -21,8 +21,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import com.desafio.squad.util.ClienteValidator;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -31,28 +31,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class ClienteServiceImplTest extends AbstractServiceTest {
+public class ClienteServiceTest extends AbstractServiceTest {
 
     @Mock(name = "clienteRepository")
-    private ClienteRepository clienteRepository;
+    private ClienteRepositoryJpa clienteRepositoryJpa;
 
     @Mock(name = "telefoneRepository")
-    private TelefoneRepository telefoneRepository;
+    private TelefoneRepositoryJpa telefoneRepositoryJpa;
 
     @Mock(name = "clienteAssembler")
     private ClienteAssembler clienteAssembler;
 
-    @Mock(name = "clienteValidator")
-    private ClienteValidator clienteValidatorMock;
-
     @Mock(name = "telefoneAssembler")
     private TelefoneAssembler telefoneAssembler;
 
-    @Mock(name = "clienteServiceMock")
-    private ClienteServiceImpl clienteServiceMock;
-
     @InjectMocks
-    private ClienteServiceImpl clienteServiceImpl;
+    private ClienteService clienteService;
 
     @InjectMocks
     private ClienteValidator clienteValidator;
@@ -65,8 +59,8 @@ public class ClienteServiceImplTest extends AbstractServiceTest {
     @Before
     public void setUp() {
         super.setUp();
-        this.clienteServiceImpl = new ClienteServiceImpl(clienteRepository, clienteAssembler, telefoneAssembler, telefoneRepository, clienteValidator);
-        this.registerService(this.clienteServiceImpl);
+        this.clienteService = new ClienteService(clienteRepositoryJpa, clienteAssembler, telefoneAssembler, telefoneRepositoryJpa, clienteValidator);
+        this.registerService(this.clienteService);
 
         cliente = new Cliente(UUID.randomUUID(), "João da Silva", LocalDateTime.now(), "667.217.700-08", "25.955.736-5", SituacaoEnum.ATIVO, PESSOA_FISICA,
                 List.of(new Telefone("321-1234", true, cliente)));
@@ -81,13 +75,13 @@ public class ClienteServiceImplTest extends AbstractServiceTest {
 
     @Test
     public void deveRetornarUmaListaQuandoListarClientes() {
-        when(clienteRepository.findAll()).thenReturn(List.of(cliente));
+        when(clienteRepositoryJpa.findAll()).thenReturn(List.of(cliente));
         when(clienteAssembler.toCollectionModel(List.of(cliente))).thenReturn(List.of(clienteResponseDTO));
 
-        List<ClienteResponseDTO> resultado = clienteServiceImpl.listar();
+        List<ClienteResponseDTO> resultado = clienteService.listar();
 
-        verify(clienteRepository, times(1)).findAll();
-        verifyNoMoreInteractions(clienteRepository);
+        verify(clienteRepositoryJpa, times(1)).findAll();
+        verifyNoMoreInteractions(clienteRepositoryJpa);
 
         verify(clienteAssembler, times(1)).toCollectionModel(List.of(cliente));
         verifyNoMoreInteractions(clienteAssembler);
@@ -97,13 +91,13 @@ public class ClienteServiceImplTest extends AbstractServiceTest {
 
     @Test
     public void deveRetornarUmaListaVaziaQuandoListarClientes() {
-        when(clienteRepository.findAll()).thenReturn(Collections.emptyList());
+        when(clienteRepositoryJpa.findAll()).thenReturn(Collections.emptyList());
         when(clienteAssembler.toCollectionModel(Collections.emptyList())).thenReturn(Collections.emptyList());
 
-        List<ClienteResponseDTO> resultado = clienteServiceImpl.listar();
+        List<ClienteResponseDTO> resultado = clienteService.listar();
 
-        verify(clienteRepository, times(1)).findAll();
-        verifyNoMoreInteractions(clienteRepository);
+        verify(clienteRepositoryJpa, times(1)).findAll();
+        verifyNoMoreInteractions(clienteRepositoryJpa);
 
         verify(clienteAssembler, times(1)).toCollectionModel(Collections.emptyList());
         verifyNoMoreInteractions(clienteAssembler);
@@ -114,12 +108,12 @@ public class ClienteServiceImplTest extends AbstractServiceTest {
     @Test
     public void deveRetornarUmClienteQuandoBuscarPorId() {
         UUID id = UUID.randomUUID();
-        when(clienteRepository.findById(id)).thenReturn(Optional.of(cliente));
+        when(clienteRepositoryJpa.findById(id)).thenReturn(Optional.of(cliente));
         when(clienteAssembler.toModel(cliente)).thenReturn(clienteResponseDTO);
 
-        ClienteResponseDTO responseDTO = clienteServiceImpl.clientePorId(id);
+        ClienteResponseDTO responseDTO = clienteService.clientePorId(id);
 
-        verify(clienteRepository, times(1)).findById(id);
+        verify(clienteRepositoryJpa, times(1)).findById(id);
 
         assertEquals(cliente.getNome(), responseDTO.getNome());
         assertEquals(cliente.getSituacao(), responseDTO.getSituacao());
@@ -134,24 +128,24 @@ public class ClienteServiceImplTest extends AbstractServiceTest {
     @Test
     public void deveRetornarEntityNotFoundQuandoBuscarUmClienteInexistente() {
         UUID id = UUID.randomUUID();
-        when(clienteRepository.findById(id)).thenThrow(jakarta.persistence.EntityNotFoundException.class);
+        when(clienteRepositoryJpa.findById(id)).thenThrow(EntityNotFoundException.class);
 
         assertThrows(EntityNotFoundException.class, () -> {
-            clienteRepository.findById(id);
+            clienteRepositoryJpa.findById(id);
         });
     }
 
     @Test
     public void deveRetornarUmClienteCriado() {
-        when(clienteRepository.save(cliente)).thenReturn(cliente);
+        when(clienteRepositoryJpa.save(cliente)).thenReturn(cliente);
         clienteValidator.validarClienteDuplicado(cliente);
 
-        Cliente response = clienteRepository.save(cliente);
+        Cliente response = clienteRepositoryJpa.save(cliente);
 
 
         verifyNoMoreInteractions(clienteAssembler);
-        verify(clienteRepository, times(1)).save(cliente);
-        verifyNoMoreInteractions(clienteRepository);
+        verify(clienteRepositoryJpa, times(1)).save(cliente);
+        verifyNoMoreInteractions(clienteRepositoryJpa);
 
         assertEquals(clienteRequestDTO.getNome(), response.getNome());
         assertEquals(clienteRequestDTO.getSituacao(), response.getSituacao());
@@ -172,20 +166,20 @@ public class ClienteServiceImplTest extends AbstractServiceTest {
         clienteRequestDTO.setTelefones(telefones);
 
         assertThrows(TelefonePrincipalInvalidoException.class,
-                () -> clienteServiceImpl.criar(clienteRequestDTO));
+                () -> clienteService.criar(clienteRequestDTO));
     }
 
     @Test
     public void deveRetornarUmClienteAtualizado() {
         UUID id = UUID.randomUUID();
-        when(clienteRepository.findById(id)).thenReturn(Optional.of(cliente));
-        clienteServiceImpl.clientePorId(id);
-        when(clienteRepository.save(cliente)).thenReturn(cliente);
+        when(clienteRepositoryJpa.findById(id)).thenReturn(Optional.of(cliente));
+        clienteService.clientePorId(id);
+        when(clienteRepositoryJpa.save(cliente)).thenReturn(cliente);
         clienteValidator.validarClienteDuplicado(cliente);
 
-        Cliente response = clienteRepository.save(cliente);
+        Cliente response = clienteRepositoryJpa.save(cliente);
 
-        verify(clienteRepository, times(1)).save(cliente);
+        verify(clienteRepositoryJpa, times(1)).save(cliente);
         telefoneAssembler.toEntity(clienteRequestDTO.getTelefones(), cliente);
         verify(telefoneAssembler, times(1)).toEntity(clienteRequestDTO.getTelefones(), cliente);
 
@@ -200,30 +194,30 @@ public class ClienteServiceImplTest extends AbstractServiceTest {
     }
 
     @Test
-    public void deletePorId() {
+    public void deveDeletarUmClientePassandoUmIdExistente() {
         UUID id = UUID.randomUUID();
-        when(clienteRepository.findById(id)).thenReturn(Optional.of(cliente));
+        when(clienteRepositoryJpa.findById(id)).thenReturn(Optional.of(cliente));
 
-        clienteServiceImpl.deletePorId(id);
+        clienteService.deletePorId(id);
 
-        verify(clienteRepository, times(1)).delete(cliente);
+        verify(clienteRepositoryJpa, times(1)).delete(cliente);
     }
 
     @Test
-    public void findByPage() {
+    public void deveRetornarUmPageQuandoPesquisarPorPagina() {
         String filter = "nome";
         Pageable pageable = PageRequest.of(0, 2);
 
         PageImpl<ClienteResponseDTO> clienteResponseDTOS = new PageImpl<>(List.of(clienteResponseDTO), pageable, 2L);
-        when(clienteRepository.findByPage(filter, pageable)).thenReturn(clienteResponseDTOS);
+        when(clienteRepositoryJpa.findByPage(filter, pageable)).thenReturn(clienteResponseDTOS);
 
-        Page<ClienteResponseDTO> response = clienteServiceImpl.findByPage(filter, pageable);
+        Page<ClienteResponseDTO> response = clienteService.findByPage(filter, pageable);
 
         assertEquals(2, response.getTotalElements());
         assertEquals(1, response.getContent().size());
         assertEquals("João da Silva", response.getContent().get(0).getNome());
 
-        verify(clienteRepository, times(1)).findByPage(filter, pageable);
-        verifyNoMoreInteractions(clienteRepository);
+        verify(clienteRepositoryJpa, times(1)).findByPage(filter, pageable);
+        verifyNoMoreInteractions(clienteRepositoryJpa);
     }
 }
