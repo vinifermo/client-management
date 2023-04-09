@@ -1,4 +1,4 @@
-# Criação de Cliente 
+# Desafio Squad
 
 ## Essa é uma API desenvolvida com Java 17 e Spring Boot para ser usado como base para o desafio a seguir:
 O objetivo principal do desafio é construir uma API REST de criação de Cliente e manipulações em seu telefone.
