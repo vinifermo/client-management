@@ -2,6 +2,7 @@ package com.desafio.squad.service;
 
 import com.desafio.squad.assembler.TelefoneAssembler;
 import com.desafio.squad.dto.request.TelefoneRequestDTO;
+import com.desafio.squad.dto.response.ClienteResponseDTO;
 import com.desafio.squad.dto.response.TelefoneResponseDTO;
 import com.desafio.squad.model.Cliente;
 import com.desafio.squad.model.Telefone;
@@ -17,8 +18,8 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 public class TelefoneServiceTest extends AbstractServiceTest {
 
@@ -32,7 +33,7 @@ public class TelefoneServiceTest extends AbstractServiceTest {
     private TelefoneService telefoneServiceMock;
 
     @InjectMocks
-    private TelefoneService telefoneServiceImpl;
+    private TelefoneService telefoneService;
 
     private Telefone telefone;
     private TelefoneResponseDTO telefoneResponseDTO;
@@ -42,8 +43,8 @@ public class TelefoneServiceTest extends AbstractServiceTest {
     @Before
     public void setUp() {
         super.setUp();
-        this.telefoneServiceImpl = new TelefoneService(telefoneRepositoryJpa, telefoneAssembler);
-        this.registerService(this.telefoneServiceImpl);
+        this.telefoneService = new TelefoneService(telefoneRepositoryJpa, telefoneAssembler);
+        this.registerService(this.telefoneService);
 
         telefone = new Telefone(UUID.fromString("9de5354e-17fc-4cf8-ab1a-17d0a15ac57e"), "321-1234", true, cliente);
         telefoneRequestDTO = new TelefoneRequestDTO("321-1234", true);
@@ -53,10 +54,12 @@ public class TelefoneServiceTest extends AbstractServiceTest {
     @Test
     public void deveRetornarUmTelefoneQuandoBuscarPorId() {
         UUID id = UUID.randomUUID();
-        lenient().when(telefoneAssembler.toModel(telefone)).thenReturn(telefoneResponseDTO);
         when(telefoneRepositoryJpa.findById(id)).thenReturn(Optional.of(telefone));
+        when(telefoneAssembler.toModel(telefone)).thenReturn(telefoneResponseDTO);
 
-        Telefone response = telefoneRepositoryJpa.findById(id).orElseThrow();
+        TelefoneResponseDTO response = telefoneService.telefonePorId(id);
+
+        verify(telefoneRepositoryJpa, times(1)).findById(id);
 
         assertEquals(telefoneResponseDTO.getId(), response.getId());
         assertEquals(telefoneResponseDTO.getNumero(), response.getNumero());
@@ -77,11 +80,12 @@ public class TelefoneServiceTest extends AbstractServiceTest {
     @Test
     public void deveAtualizarTelefonePassandoUmIdExistente() {
         UUID id = UUID.randomUUID();
-        lenient().when(telefoneRepositoryJpa.findById(id)).thenReturn(Optional.of(telefone));
+        when(telefoneRepositoryJpa.findById(id)).thenReturn(Optional.of(telefone));
+        telefoneService.telefonePorId(id);
         when(telefoneRepositoryJpa.save(telefone)).thenReturn(telefone);
 
-        Telefone response = telefoneRepositoryJpa.save(telefone);
         telefoneServiceMock.atualizar(id, telefoneRequestDTO);
+        Telefone response = telefoneRepositoryJpa.save(telefone);
 
         assertEquals(telefoneRequestDTO.getNumero(), response.getNumero());
         assertEquals(telefoneRequestDTO.getPrincipal(), response.getPrincipal());
