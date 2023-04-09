@@ -1,0 +1,13 @@
+{
+  "nome": "{{nome}}",
+  "situacao": "{{situacao}}",
+  "numeroDocumento": "{{numeroDocumento}}",
+  "numeroRegistro": "{{numeroRegistro}}",
+  "tipoPessoaEnum": "{{tipoPessoaEnum}}",
+  "telefones": [
+    {
+      "numero": "{{numero}}",
+      "principal": "{{principal}}"
+    }
+  ]
+}
