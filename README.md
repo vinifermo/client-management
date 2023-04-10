@@ -11,7 +11,7 @@ POST /clientes
 ## Request
 A requisição deve ser feita com um JSON no corpo da mensagem, contendo o os campos necessários.
 
-Lembrando que existe uma validação onde PESSOA_FISICA só pode cadastrar CPF e RG e PESSOA_JURIDICA CNPJ e IE.
+Lembrando que existe uma validação onde PESSOA_FISICA só pode cadastrar CPF (Numero Documento) e RG (Numero Registro) e PESSOA_JURIDICA CNPJ (Numero Documento) e IE (Numero Registro).
 
 Exemplo de request:
 
