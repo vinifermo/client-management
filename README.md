@@ -33,7 +33,7 @@ Exemplo de request:
 ## Response
 O servidor responde com um JSON no corpo da mensagem, contendo as informações que foram passadas para criar um cliente.
 
-Exemplo de response bem sucedido vai ser gerado um header onde poderá ser localizado atrás ve um endpoint de GET / (ID):
+Exemplo de response bem sucedido vai ser gerado um header onde poderá ser localizado atraves de um endpoint de GET / (ID):
 
 ```bash
 http://localhost:8080/clientes/262866f9-f8ba-450b-af93-f0f91d135a14
